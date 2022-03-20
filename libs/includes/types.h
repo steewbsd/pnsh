@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#define PATHS_ROOT "/"
+#define PATHS_DEFAULT "/home/rier"
+#define MAX_TABLE_LEN 50
+
 typedef struct {
   FILE *_fd;
   char *literal;
@@ -31,25 +35,39 @@ typedef struct {
   int _parent;
 } pn_t_proc;
 
-typedef struct {
-  void *field;
-} pn_t_list;
+/* TABLE FIELDS DEFINITION */
+/* Builtin ls command field structure */
+struct pn_t_list_ls_field {
+  int   perms;
+  int   owner;
+  int   group;
+  char *filename;
+};
 
+typedef enum {BLTN_LS} TABLE_TYPE;
 typedef struct {
+  TABLE_TYPE type;
   int rows;
-  int cols;
-  int key;
-  pn_t_list *lists;
+  void *lists; /* holds any pn_t_list_x type */
+  size_t unit_size;
 } pn_t_table;
 
 typedef struct {
   int status;
 } pn_t_exec_status;
 
+typedef struct {
+  pn_t_path loc;
+} pn_state;
+
 /* init funcs */
 /* pn_t_path */
-pn_t_path pn_new_path(char *literal);
-FILE * pn_new_fd(pn_t_path p);
+void       pn_print_table(pn_t_table table, int cols, ...);
+pn_t_table create_table(TABLE_TYPE type, int rows);
+pn_state  *pn_init_state();
+void       pn_destroy_state(pn_state *pn);
+pn_t_path  pn_new_path(char *literal);
+FILE      *pn_new_fd(pn_t_path p);
 
 #endif /* _PN_TYPES_H_ */
 
