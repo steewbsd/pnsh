@@ -5,6 +5,7 @@
 #ifndef _PN_TYPES_H_
 #define _PN_TYPES_H_
 
+#include "libs/includes/types.h"
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -14,21 +15,25 @@
 #define PATHS_DEFAULT "/home/rier"
 #define MAX_TABLE_LEN 50
 
+extern const char *builtin_commands[];
+
 typedef struct {
   FILE *_fd;
   char *literal;
 } pn_t_path;
 
-typedef struct {
-  char *exec_path;
-  bool _alias;
-  /* TODO: competion callback with cuecoon */
-} pn_t_cmd;
-
 typedef enum {F_SHORT, F_LONG, F_BSD_STYLE} FLAG_T;
 typedef struct {
   FLAG_T flag_type;
+  char   *opt;
 } pn_t_cmd_flag;
+
+typedef struct {
+  char          *exec_path;
+  bool          _alias;
+  pn_t_cmd_flag *flags;
+  /* TODO: competion callback with cuecoon */
+} pn_t_cmd;
 
 typedef struct {
   int pid;
@@ -47,8 +52,8 @@ struct pn_t_list_ls_field {
 typedef enum {BLTN_LS} TABLE_TYPE;
 typedef struct {
   TABLE_TYPE type;
-  int rows;
-  void *lists; /* holds any pn_t_list_x type */
+  int    rows;
+  void   *lists; /* holds any pn_t_list_x type */
   size_t unit_size;
 } pn_t_table;
 

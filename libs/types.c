@@ -1,5 +1,7 @@
 #include "includes/types.h"
 #include <err.h>
+#include <dirent.h>
+#include <search.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -19,6 +21,31 @@ pn_init_state()
   pn_state * pn;
   pn = malloc(sizeof(pn_state));
   pn->loc.literal = PATHS_DEFAULT;
+  
+  DIR * d;
+  struct dirent *dir;
+  
+  char * paths = getenv("PATH");
+  char * token;
+  ENTRY item;
+  hcreate(100);
+  while ((token = strsep(&paths, ":")) != NULL) {
+	d = opendir(token);
+	if (d) {
+	  while ((dir = readdir(d)) != NULL) {
+		item.key = strdup(dir->d_name);
+		sprintf(item.data, "%s/%s", token, dir->d_name);
+		hsearch(item, ENTER);
+	  }
+	  closedir(d);
+	}
+  }
+  /* overwrite entries with builtin functions */
+  for (int i = 0; i <= sizeof(builtin_commands)/sizeof(builtin_commands[0]); i++) {
+	item.key = strdup(builtin_commands[i]);
+	item.data = 0;
+	hsearch(item, ENTER);
+  }
   return pn;
 }
 

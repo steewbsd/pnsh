@@ -5,6 +5,11 @@
 #include <sys/stat.h>
 #include <string.h>
 
+const char *builtin_commands[] ={
+  "ls",
+  "cd",
+};
+
 pn_t_table
 pn_builtins_ls(pn_state *pn, char *args, ...)
 {

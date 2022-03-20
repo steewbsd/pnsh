@@ -3,6 +3,7 @@
 #include "libs/includes/types.h"
 #include <histedit.h>
 #include <locale.h>
+#include <search.h>
 #include <err.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,10 +35,19 @@ main()
 	errx(1, "failed to initialize program state");
 	goto EMERGENCY_FREE;
   }
-
+  
   /* main loop to get user input */
   while ((line = pn_read(el)) != NULL) {
-	printf("%s\n", line);
+	ENTRY *command;
+	ENTRY tofind;
+	
+	tofind.key = pn_strip_newline(line);
+	command = hsearch(tofind, FIND);
+	if (command == NULL) {
+	  printf("command not registered: %s\n", tofind.key);
+	  continue;
+	}
+	
 	if (strcmp(pn_strip_newline(line), "ls") == 0) {
 	  pn_t_table table = pn_builtins_ls(pn, "");
 	  pn_print_table(table, 0);
@@ -45,6 +55,8 @@ main()
 	}
 	else if (strcmp(pn_strip_newline(line), "cd") == 0)
 	  pn_builtins_cd(pn, "/home/rier");
+	else if (strcmp(pn_strip_newline(line), "q") == 0)
+	  break;
 	/* free line, as it was copied dynamically */
 	free(line);
   }
@@ -54,5 +66,6 @@ main()
   el_end(el);
   /* free pnsh state */
   pn_destroy_state(pn);
+  hdestroy();
 }
 
